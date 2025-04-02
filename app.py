@@ -1,8 +1,10 @@
 import sqlite3 
 import json
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 def init_db():
     with sqlite3.connect("database.db") as conn:
@@ -71,6 +73,19 @@ def listar_livros():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/livros/<int:id>', methods=['DELETE'])
+def excluir_livro(id):
+    try:
+        with sqlite3.connect("database.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM LIVROS WHERE id = ?", (id,))
+            conn.commit()
+
+        return jsonify({"message": "Livro excluído com sucesso!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
